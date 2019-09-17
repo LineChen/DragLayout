@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.line.flowlayout.FlowLayout
+        android:id="@+id/flow_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:fl_stickyEdge="all">
+
+        <TextView
+            android:id="@+id/image"
+            android:layout_width="200px"
+            android:layout_height="200px"
+            android:layout_gravity="right|bottom"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:textColor="#000" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="blue"
+            android:text="蓝"
+            android:textColor="#00f" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="red"
+            android:text="红"
+            android:textColor="#f00" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="black"
+            android:text="黑"
+            android:textColor="#000" />
+
+
+    </com.line.flowlayout.FlowLayout>
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FlowLayout">
+        <attr name="fl_showPercent" format="float" />
+        <attr name="fl_stickyEdge">
+            <enum name="none" value="0" />
+            <enum name="left" value="0x00000001" />
+            <enum name="right" value="0x00000010" />
+            <enum name="all" value="0x00000011" />
+        </attr>
+        <attr name="fl_marginTop" format="integer" />
+        <attr name="fl_marginBottom" format="integer" />
+    </declare-styleable>
+
+</resources>
