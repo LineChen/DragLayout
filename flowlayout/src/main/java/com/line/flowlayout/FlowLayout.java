@@ -107,6 +107,7 @@ public class FlowLayout extends FrameLayout {
             @Override
             public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
                 super.onViewReleased(releasedChild, xvel, yvel);
+                dragListener.onReleased(releasedChild);
                 int viewWidth = releasedChild.getWidth();
                 int viewHeight = releasedChild.getHeight();
                 int curLeft = releasedChild.getLeft();
@@ -144,11 +145,11 @@ public class FlowLayout extends FrameLayout {
                         }
                         break;
                 }
+                dragHelper.settleCapturedViewAt(finalLeft, finalTop);
+                invalidate();
                 if (dragListener != null) {
                     dragListener.onSettling(releasedChild, settledEdge);
                 }
-                dragHelper.settleCapturedViewAt(finalLeft, finalTop);
-                invalidate();
             }
         });
     }

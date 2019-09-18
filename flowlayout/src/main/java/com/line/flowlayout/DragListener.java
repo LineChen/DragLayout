@@ -8,5 +8,7 @@ import android.view.View;
 public interface DragListener {
     void onDragging(View view);
 
+    void onReleased(View view);
+
     void onSettling(View view, int edge);
 }
