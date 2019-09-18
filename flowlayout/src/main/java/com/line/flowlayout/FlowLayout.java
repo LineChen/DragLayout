@@ -107,7 +107,9 @@ public class FlowLayout extends FrameLayout {
             @Override
             public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
                 super.onViewReleased(releasedChild, xvel, yvel);
-                dragListener.onReleased(releasedChild);
+                if (dragListener != null) {
+                    dragListener.onReleased(releasedChild);
+                }
                 int viewWidth = releasedChild.getWidth();
                 int viewHeight = releasedChild.getHeight();
                 int curLeft = releasedChild.getLeft();
