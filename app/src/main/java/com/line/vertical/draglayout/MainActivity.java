@@ -30,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onReleased(View view) {
+
+            }
+
+            @Override
             public void onSettling(View view, int edge) {
                 if (view == imageView) {
                     imageView.setBackgroundColor(Color.LTGRAY);

@@ -172,13 +172,25 @@ public class FlowLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return dragHelper.shouldInterceptTouchEvent(ev);
+        boolean interceptTouchEvent = dragHelper.shouldInterceptTouchEvent(ev);
+        Log.e(TAG, "onInterceptTouchEvent: interceptTouchEvent = " + interceptTouchEvent);
+        boolean touchChildView = isTouchChildView(ev);
+        Log.e(TAG, "onInterceptTouchEvent: touchChildView = " + touchChildView);
+        return interceptTouchEvent && touchChildView;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         dragHelper.processTouchEvent(event);
-        return isTouchChildView(event);
+        boolean touchChildView = isTouchChildView(event);
+        Log.e(TAG, "onTouchEvent: " + touchChildView);
+        return touchChildView;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        Log.e(TAG, "dispatchTouchEvent");
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
