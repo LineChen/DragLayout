@@ -11,8 +11,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by linechen on 2019/3/15.
@@ -35,9 +37,7 @@ public class FlowLayout extends FrameLayout {
     private int finalLeft = -1;
     private int finalTop = -1;
 
-    private int[] position = new int[4];
-    private boolean useLastChildPosition;
-    private DragListener dragListener;
+    private List<DragListener> dragListenerList = new ArrayList<>();
 
 
     public FlowLayout(@NonNull Context context) {
@@ -62,26 +62,24 @@ public class FlowLayout extends FrameLayout {
     }
 
     private void init() {
-        screenWidth = getScreenWidth(getContext());
+        screenWidth = getScreenWidth();
         dragHelper = ViewDragHelper.create(this, new ViewDragHelper.Callback() {
 
             @Override
             public boolean tryCaptureView(@NonNull View child, int pointerId) {
-                Log.d(TAG, "tryCaptureView: child = " + child);
+//                Log.d(TAG, "tryCaptureView: child = " + child);
                 return true;
             }
 
             @Override
             public void onViewDragStateChanged(int state) {
-                Log.d(TAG, "onViewDragStateChanged: state = " + state);
+//                Log.d(TAG, "onViewDragStateChanged: state = " + state);
             }
 
             @Override
             public void onViewCaptured(@NonNull View capturedChild, int activePointerId) {
-                Log.d(TAG, "onViewCaptured: capturedChild = " + capturedChild);
-                if (dragListener != null) {
-                    dragListener.onDragging(capturedChild);
-                }
+//                Log.d(TAG, "onViewCaptured: capturedChild = " + capturedChild);
+                onDragging(capturedChild);
             }
 
             @Override
@@ -105,11 +103,10 @@ public class FlowLayout extends FrameLayout {
             }
 
             @Override
-            public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
-                super.onViewReleased(releasedChild, xvel, yvel);
-                if (dragListener != null) {
-                    dragListener.onReleased(releasedChild);
-                }
+            public void onViewReleased(@NonNull final View releasedChild, float xvel, float yvel) {
+                Log.d(TAG, "onViewReleased: " + releasedChild);
+                onReleased(releasedChild);
+
                 int viewWidth = releasedChild.getWidth();
                 int viewHeight = releasedChild.getHeight();
                 int curLeft = releasedChild.getLeft();
@@ -147,35 +144,40 @@ public class FlowLayout extends FrameLayout {
                         }
                         break;
                 }
+
                 dragHelper.settleCapturedViewAt(finalLeft, finalTop);
+                Log.d(TAG, "onViewReleased: finalLeft = " + finalLeft + ",finalTop = " + finalTop);
+
+                releasedChild.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //需要保存滑动过的控件最后的位置，否则下次onLayout会将改View的位置重置为第一次添加进来的位置
+                        FrameLayout.LayoutParams st = (FrameLayout.LayoutParams) releasedChild.getLayoutParams();
+                        st.gravity = 0;
+                        st.leftMargin = finalLeft;
+                        st.topMargin = finalTop;
+                        releasedChild.setLayoutParams(st);
+                    }
+                });
+
                 invalidate();
-                if (dragListener != null) {
-                    dragListener.onSettling(releasedChild, settledEdge);
-                }
+                onSettling(releasedChild, settledEdge);
             }
         });
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (finalLeft == -1 && finalTop == -1) {
-            super.onLayout(changed, left, top, right, bottom);
-        } else if (useLastChildPosition) {
-            final int count = getChildCount();
-            for (int i = 0; i < count; i++) {
-                final View child = getChildAt(i);
-                child.layout(position[0], position[1], position[2], position[3]);
-            }
-        }
-        useLastChildPosition = false;
+        super.onLayout(changed, left, top, right, bottom);
+        Log.d(TAG, "super onLayout: " + changed + " , " + left + ", " + top + ", " + right + ", " + bottom);
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         boolean interceptTouchEvent = dragHelper.shouldInterceptTouchEvent(ev);
-        Log.e(TAG, "onInterceptTouchEvent: interceptTouchEvent = " + interceptTouchEvent);
+//        Log.e(TAG, "onInterceptTouchEvent: interceptTouchEvent = " + interceptTouchEvent);
         boolean touchChildView = isTouchChildView(ev);
-        Log.e(TAG, "onInterceptTouchEvent: touchChildView = " + touchChildView);
+//        Log.e(TAG, "onInterceptTouchEvent: touchChildView = " + touchChildView);
         return interceptTouchEvent && touchChildView;
     }
 
@@ -183,13 +185,13 @@ public class FlowLayout extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         dragHelper.processTouchEvent(event);
         boolean touchChildView = isTouchChildView(event);
-        Log.e(TAG, "onTouchEvent: " + touchChildView);
+//        Log.e(TAG, "onTouchEvent: " + touchChildView);
         return touchChildView;
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        Log.e(TAG, "dispatchTouchEvent");
+//        Log.e(TAG, "dispatchTouchEvent");
         return super.dispatchTouchEvent(ev);
     }
 
@@ -216,37 +218,27 @@ public class FlowLayout extends FrameLayout {
     /**
      * 获得屏幕宽度
      *
-     * @param context
      * @return
      */
-    private int getScreenWidth(Context context) {
+    private int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
-//        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-//        DisplayMetrics outMetrics = new DisplayMetrics();
-//        wm.getDefaultDisplay().getMetrics(outMetrics);
-//        return outMetrics.widthPixels;
     }
 
-    @Override
-    public void removeAllViews() {
-        beforeRemove();
-        super.removeAllViews();
+    private void onDragging(View view) {
+        for (DragListener l : dragListenerList) {
+            l.onDragging(view);
+        }
     }
 
-    @Override
-    public void addView(View child, int index, ViewGroup.LayoutParams params) {
-        super.addView(child, index, params);
-        useLastChildPosition = true;
+    private void onReleased(View view) {
+        for (DragListener l : dragListenerList) {
+            l.onReleased(view);
+        }
     }
 
-    private void beforeRemove() {
-        final int count = getChildCount();
-        if (count > 0) {
-            View child = getChildAt(0);
-            position[0] = child.getLeft();
-            position[1] = child.getTop();
-            position[2] = child.getRight();
-            position[3] = child.getBottom();
+    private void onSettling(View view, int edge) {
+        for (DragListener l : dragListenerList) {
+            l.onSettling(view, edge);
         }
     }
 
@@ -266,7 +258,14 @@ public class FlowLayout extends FrameLayout {
         this.marginBottom = marginBottom;
     }
 
-    public void setDragListener(DragListener dragListener) {
-        this.dragListener = dragListener;
+    public void addDragListener(DragListener dragListener) {
+        if (!dragListenerList.contains(dragListener)) {
+            dragListenerList.add(dragListener);
+        }
     }
+
+    public void removeDragListener(DragListener dragListener) {
+        dragListenerList.remove(dragListener);
+    }
+
 }
