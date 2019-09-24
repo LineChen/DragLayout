@@ -16,13 +16,17 @@ import com.line.flowlayout.FlowLayout;
 public class MainActivity extends AppCompatActivity {
 
     TextView imageView;
+    View blackBtn;
+    private FlowLayout flowLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.image);
-        FlowLayout flowLayout = findViewById(R.id.flow_layout);
+        blackBtn = findViewById(R.id.btn_black);
+        blackBtn.setTag("black");
+        flowLayout = findViewById(R.id.flow_layout);
         flowLayout.addDragListener(new DragListener() {
             @Override
             public void onDragging(View view) {
@@ -56,16 +60,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void black(View view) {
         Toast.makeText(this, "black", Toast.LENGTH_SHORT).show();
-        imageView.setVisibility(View.GONE);
+        blackBtn.setVisibility(View.GONE);
+        flowLayout.removeView(blackBtn);
     }
 
     public void red(View view) {
-        imageView.setVisibility(View.VISIBLE);
+        blackBtn.setVisibility(View.VISIBLE);
+        flowLayout.removeView(blackBtn);
+        flowLayout.addView(blackBtn);
         Toast.makeText(this, "red", Toast.LENGTH_SHORT).show();
     }
 
     public void blue(View view) {
-        imageView.setVisibility(View.GONE);
+        blackBtn.setVisibility(View.GONE);
         Toast.makeText(this, "blue", Toast.LENGTH_SHORT).show();
     }
 }

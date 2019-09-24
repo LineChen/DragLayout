@@ -18,6 +18,9 @@ import java.util.List;
 
 /**
  * Created by linechen on 2019/3/15.
+ * <p>
+ * 注意：如果添加进来的view可能会显示隐藏，不显示的一定要remove掉，显示的时候再add进来，
+ * 如果单纯的设置该view的visiblity，GONE掉的view还是会被ViewDragHelper识别
  */
 public class FlowLayout extends FrameLayout {
 
