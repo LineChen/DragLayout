@@ -23,7 +23,6 @@ import java.util.List;
  * 如果单纯的设置该view的visiblity，GONE掉的view还是会被ViewDragHelper识别
  */
 public class FlowLayout extends FrameLayout {
-
     private static final String TAG = "FlowLayout";
 
     public static final int STICKY_EDGE_NONE = 0x00000000;
@@ -40,6 +39,10 @@ public class FlowLayout extends FrameLayout {
     private int finalLeft = -1;
     private int finalTop = -1;
 
+    /**
+     * 当前是否在拖动某个view
+     */
+    private boolean onDragging;
     private List<DragListener> dragListenerList = new ArrayList<>();
 
 
@@ -155,7 +158,7 @@ public class FlowLayout extends FrameLayout {
                     @Override
                     public void run() {
                         //需要保存滑动过的控件最后的位置，否则下次onLayout会将改View的位置重置为第一次添加进来的位置
-                        FrameLayout.LayoutParams st = (FrameLayout.LayoutParams) releasedChild.getLayoutParams();
+                        LayoutParams st = (LayoutParams) releasedChild.getLayoutParams();
                         st.gravity = 0;
                         st.leftMargin = finalLeft;
                         st.topMargin = finalTop;
@@ -171,8 +174,10 @@ public class FlowLayout extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        Log.d(TAG, "super onLayout: " + changed + " , " + left + ", " + top + ", " + right + ", " + bottom);
+        if (!onDragging) {
+            super.onLayout(changed, left, top, right, bottom);
+            Log.d(TAG, "super onLayout: " + changed + " , " + left + ", " + top + ", " + right + ", " + bottom);
+        }
     }
 
     @Override
@@ -211,7 +216,7 @@ public class FlowLayout extends FrameLayout {
         for (int i = 0; i < getChildCount(); i++) {
             View view = getChildAt(i);
             rect.set((int) view.getX(), (int) view.getY(), (int) view.getX() + view.getWidth(), (int) view.getY() + view.getHeight());
-            if (rect.contains((int) ev.getX(), (int) ev.getY())) {
+            if (rect.contains((int) ev.getX(), (int) ev.getY()) && view.getVisibility() == VISIBLE) {
                 return true;
             }
         }
@@ -228,12 +233,14 @@ public class FlowLayout extends FrameLayout {
     }
 
     private void onDragging(View view) {
+        onDragging = true;
         for (DragListener l : dragListenerList) {
             l.onDragging(view);
         }
     }
 
     private void onReleased(View view) {
+        onDragging = false;
         for (DragListener l : dragListenerList) {
             l.onReleased(view);
         }
@@ -270,5 +277,4 @@ public class FlowLayout extends FrameLayout {
     public void removeDragListener(DragListener dragListener) {
         dragListenerList.remove(dragListener);
     }
-
 }
