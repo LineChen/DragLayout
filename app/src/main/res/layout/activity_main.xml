@@ -10,6 +10,7 @@
         android:id="@+id/flow_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:fl_showPercent="0.5"
         app:fl_stickyEdge="all">
 
         <TextView
