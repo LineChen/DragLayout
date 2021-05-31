@@ -36,6 +36,8 @@ public class FlowLayout extends FrameLayout {
     private float showPercent = 1;//悬停时显示部分
     private int marginTop = 0;
     private int marginBottom = 0;
+    private int marginLeft = 0;//悬停时，最左边位置
+    private int marginRight = 0;//悬停时，最右边位置
     private int finalLeft = -1;
     private int finalTop = -1;
 
@@ -61,6 +63,8 @@ public class FlowLayout extends FrameLayout {
             stickyEdge = ta.getInt(R.styleable.FlowLayout_fl_stickyEdge, STICKY_EDGE_NONE);
             marginTop = ta.getInt(R.styleable.FlowLayout_fl_marginTop, 0);
             marginBottom = ta.getInt(R.styleable.FlowLayout_fl_marginBottom, 0);
+            marginLeft = ta.getInt(R.styleable.FlowLayout_fl_marginLeft, 0);
+            marginRight = ta.getInt(R.styleable.FlowLayout_fl_marginRight, 0);
             showPercent = ta.getFloat(R.styleable.FlowLayout_fl_showPercent, 1);
             ta.recycle();
         }
@@ -118,14 +122,14 @@ public class FlowLayout extends FrameLayout {
                 int curLeft = releasedChild.getLeft();
                 int curTop = releasedChild.getTop();
 
-                finalTop = curTop < marginTop ? marginTop : curTop;
-                finalLeft = curLeft < 0 ? 0 : curLeft;
+                finalTop = Math.max(curTop, marginTop);
+                finalLeft = Math.max(curLeft, marginLeft);
                 if ((finalTop + viewHeight) > getHeight() - marginBottom) {
                     finalTop = getHeight() - viewHeight - marginBottom;
                 }
 
                 if ((finalLeft + viewWidth) > getWidth()) {
-                    finalLeft = getWidth() - viewWidth;
+                    finalLeft = getWidth() - viewWidth - marginRight;
                 }
                 int settledEdge = STICKY_EDGE_NONE;//停止的位置
                 switch (stickyEdge) {
@@ -266,6 +270,14 @@ public class FlowLayout extends FrameLayout {
 
     public void setMarginBottom(int marginBottom) {
         this.marginBottom = marginBottom;
+    }
+
+    public void setMarginLeft(int marginLeft) {
+        this.marginLeft = marginLeft;
+    }
+
+    public void setMarginRight(int marginRight) {
+        this.marginRight = marginRight;
     }
 
     public void addDragListener(DragListener dragListener) {
