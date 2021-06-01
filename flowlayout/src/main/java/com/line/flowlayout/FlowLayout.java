@@ -128,7 +128,7 @@ public class FlowLayout extends FrameLayout {
                     finalTop = getHeight() - viewHeight - marginBottom;
                 }
 
-                if ((finalLeft + viewWidth) > getWidth()) {
+                if ((finalLeft + viewWidth) > getWidth() - marginRight) {
                     finalLeft = getWidth() - viewWidth - marginRight;
                 }
                 int settledEdge = STICKY_EDGE_NONE;//停止的位置
